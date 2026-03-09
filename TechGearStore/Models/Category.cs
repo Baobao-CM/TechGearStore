@@ -1,9 +1,12 @@
-﻿namespace TechGearStore.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TechGearStore.Models
 {
     public class Category
     {
-        public int CategoryId { get; set; }
+        public int Id { get; set; }
 
-        public string CategoryName { get; set; }
+        [Required]
+        public string Name { get; set; }
     }
 }
