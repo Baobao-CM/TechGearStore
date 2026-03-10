@@ -1,0 +1,166 @@
+﻿@model TechGearStore.Models.Product
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h2 class="mb-4">Chỉnh sửa sản phẩm</h2>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <form asp-area="Admin"
+              asp-controller="AdminProducts"
+              asp-action="Edit"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="ImageUrl" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Product Name -->
+            <div class="form-group mb-3">
+                <label asp-for="ProductName" class="form-label">Tên sản phẩm</label>
+                <input asp-for="ProductName" class="form-control" />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+
+            <!-- Price -->
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="form-label">Giá tiền (VND)</label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="form-label">Mô tả sản phẩm</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <!-- Current Image -->
+            <div class="form-group mb-3">
+                <label class="form-label">Ảnh hiện tại</label><br />
+                <img id="previewImage"
+                     src="@Model.ImageUrl"
+                     style="width:150px;border-radius:8px;border:1px solid #ccc;padding:5px;" />
+            </div>
+
+            <!-- Upload New Image -->
+            <div class="form-group mb-3">
+                <label class="form-label">Thay ảnh mới</label>
+                <input type="file"
+                       name="imageFile"
+                       class="form-control"
+                       onchange="previewFile(event)" />
+            </div>
+
+            <!-- Gallery hiện tại -->
+            <div class="form-group mb-3">
+                <label>Ảnh chi tiết hiện tại</label>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+                    @if (Model.Images != null && Model.Images.Any())
+                    {
+                        foreach (var img in Model.Images)
+                        {
+                            <div style="position:relative">
+
+                                <img src="@img.ImageUrl"
+                                     style="width:120px;height:120px;object-fit:cover;border:1px solid #ddd;border-radius:5px;" />
+
+                                <button type="button"
+                                        onclick="deleteImage(@img.Id)"
+                                        style="position:absolute;
+                                               top:-8px;
+                                               right:-8px;
+                                               background:red;
+                                               color:white;
+                                               border:none;
+                                               border-radius:50%;
+                                               width:25px;
+                                               height:25px;
+                                               cursor:pointer;">
+                                    ✕
+                                </button>
+
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>Chưa có ảnh chi tiết.</p>
+                    }
+
+                </div>
+            </div>
+
+            <!-- Upload thêm gallery -->
+            <div class="form-group mb-3">
+                <label>Thêm ảnh chi tiết</label>
+                <input type="file"
+                       name="galleryFiles"
+                       multiple
+                       class="form-control" />
+            </div>
+
+            <!-- Category -->
+            <div class="form-group mb-4">
+                <label asp-for="CategoryId" class="form-label">Danh mục</label>
+                <select asp-for="CategoryId"
+                        class="form-control"
+                        asp-items="ViewBag.CategoryId">
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group">
+
+                <button type="submit" class="btn btn-primary">
+                    Lưu thay đổi
+                </button>
+
+                <a asp-area="Admin"
+                   asp-controller="AdminProducts"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Quay lại
+                </a>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        function previewFile(event) {
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                document.getElementById("previewImage").src = reader.result;
+            }
+
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function deleteImage(id) {
+            if (confirm("Bạn có chắc muốn xoá ảnh này?")) {
+                window.location.href = "/Admin/AdminProducts/DeleteImage/" + id;
+            }
+        }
+
+    </script>
+
+}

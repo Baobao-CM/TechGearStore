@@ -1,0 +1,72 @@
+﻿@model TechGearStore.Models.Product
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Tạo mới sản phẩm</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+
+        <form asp-area="Admin"
+              asp-controller="AdminProducts"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="ProductName">Tên sản phẩm</label>
+                <input asp-for="ProductName" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Price">Giá tiền (VND)</label>
+                <input asp-for="Price" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Chi tiết sản phẩm</label>
+                <input asp-for="Description" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Ảnh sản phẩm</label>
+                <input type="file" name="imageFile" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Ảnh chi tiết</label>
+                <input type="file"
+                       name="galleryFiles"
+                       multiple
+                       class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId">Danh mục</label>
+                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control"></select>
+            </div>
+
+            <br />
+
+            <button type="submit" class="btn btn-primary">
+                Tạo
+            </button>
+
+        </form>
+
+    </div>
+</div>
+<div>
+    <a asp-area="Admin" asp-controller="AdminProducts" asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

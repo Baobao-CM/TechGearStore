@@ -1,0 +1,69 @@
+﻿@model TechGearStore.Models.Product
+
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+}
+
+<h2 class="mb-4 text-danger">Xóa sản phẩm</h2>
+
+<div class="alert alert-warning">
+    <strong>Cảnh báo!</strong> Bạn có chắc muốn xóa sản phẩm này không?
+</div>
+
+<div class="card" style="max-width:600px;">
+    <div class="card-body">
+
+        <div class="text-center mb-3">
+            <img src="@Model.ImageUrl"
+                 alt="Product Image"
+                 style="width:200px;border-radius:10px;border:1px solid #ddd;padding:5px;" />
+        </div>
+
+        <dl class="row">
+
+            <dt class="col-sm-4">
+                Tên sản phẩm
+            </dt>
+            <dd class="col-sm-8">
+                @Model.ProductName
+            </dd>
+
+            <dt class="col-sm-4">
+                Giá
+            </dt>
+            <dd class="col-sm-8">
+                @Model.Price.ToString("N0") VND
+            </dd>
+
+            <dt class="col-sm-4">
+                Mô tả
+            </dt>
+            <dd class="col-sm-8">
+                @Model.Description
+            </dd>
+
+            <dt class="col-sm-4">
+                Danh mục
+            </dt>
+            <dd class="col-sm-8">
+                @Model.Category?.Name
+            </dd>
+
+        </dl>
+
+        <hr />
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="ProductId" />
+
+            <button type="submit" class="btn btn-danger">
+                Xóa sản phẩm
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Hủy
+            </a>
+        </form>
+
+    </div>
+</div>

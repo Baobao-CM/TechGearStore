@@ -5,10 +5,26 @@
 }
 
 <h1>Index</h1>
-
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form method="get">
+    Search:
+    <input type="text" name="searchString" />
+
+    Category:
+    <select name="categoryId">
+        <option value="">All</option>
+
+        @foreach (var cat in ViewBag.Categories)
+        {
+            <option value="@cat.Id">@cat.Name</option>
+        }
+    </select>
+
+    <input type="submit" value="Filter" />
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -27,33 +43,40 @@
             <th>
                 @Html.DisplayNameFor(model => model.CategoryId)
             </th>
+            <th>
+                Category
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoryId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ImageUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryId)
+                </td>
+                <td>
+                    @item.Category.Name
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

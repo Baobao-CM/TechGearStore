@@ -1,0 +1,135 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<TechGearStore.Models.Product>
+
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<h2 class="mb-4">Quản lý sản phẩm</h2>
+
+<div class="row mb-3">
+
+    <!-- Nút tạo sản phẩm -->
+    <div class="col-md-2">
+        <a asp-action="Create" class="btn btn-success">
+            + Thêm sản phẩm
+        </a>
+    </div>
+
+    <!-- Search -->
+    <div class="col-md-4">
+        <form method="get">
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="Tìm theo tên sản phẩm..." />
+        </form>
+    </div>
+
+    <!-- Filter Category -->
+    <div class="col-md-4">
+        <form method="get">
+            <select name="categoryId"
+                    asp-items="ViewBag.CategoryId"
+                    class="form-control"
+                    onchange="this.form.submit()">
+
+                <option value="">-- Tất cả danh mục --</option>
+
+            </select>
+        </form>
+    </div>
+
+</div>
+
+<table class="table table-bordered table-hover align-middle">
+
+    <thead class="table-dark">
+
+        <tr>
+            <th style="width:120px">Ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th style="width:150px">Giá</th>
+            <th>Mô tả</th>
+            <th style="width:150px">Danh mục</th>
+            <th style="width:220px">Hành động</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <!-- Image -->
+                <td>
+                    <img src="@item.ImageUrl"
+                         style="width:80px;height:80px;object-fit:cover;border-radius:6px;" />
+                </td>
+
+                <!-- Product Name -->
+                <td>
+                    @item.ProductName
+                </td>
+
+                <!-- Price -->
+                <td>
+                    @item.Price.ToString("N0") VND
+                </td>
+
+                <!-- Description -->
+                <td>
+                    @item.Description
+                </td>
+
+                <!-- Category -->
+                <td>
+                    @item.Category?.Name
+                </td>
+
+                <!-- Actions -->
+                <td>
+
+                    <a asp-action="Edit"
+                       asp-route-id="@item.ProductId"
+                       class="btn btn-warning btn-sm">
+                        Sửa
+                    </a>
+
+                    <a asp-action="Details"
+                       asp-route-id="@item.ProductId"
+                       class="btn btn-info btn-sm">
+                        Chi tiết
+                    </a>
+
+                    <button class="btn btn-danger btn-sm"
+                            onclick="confirmDelete(@item.ProductId)">
+                        Xóa
+                    </button>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+<div class="mt-3">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
+</div>
+<script>
+
+    function confirmDelete(id) {
+
+        if (confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
+
+            window.location.href = "/Admin/AdminProducts/Delete/" + id;
+
+        }
+
+    }
+
+</script>
