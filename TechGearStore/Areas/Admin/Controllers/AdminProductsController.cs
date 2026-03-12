@@ -22,14 +22,18 @@ namespace TechGearStore.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/AdminProducts
-        public async Task<IActionResult> Index(string search, int? categoryId, int? page)
+        // ===============================
+        // INDEX
+        // ===============================
+        public IActionResult Index(string search, int? categoryId, int? page)
         {
             int pageSize = 5;
             int pageNumber = page ?? 1;
 
             var products = _context.Products
                 .Include(p => p.Category)
+                .AsNoTracking()
+                .OrderByDescending(p => p.ProductId)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(search))
@@ -42,12 +46,18 @@ namespace TechGearStore.Areas.Admin.Controllers
                 products = products.Where(p => p.CategoryId == categoryId);
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewBag.Search = search;
+            ViewBag.CategoryId = categoryId;
+
+            ViewData["CategoryId"] =
+                new SelectList(_context.Categories, "Id", "Name");
 
             return View(products.ToPagedList(pageNumber, pageSize));
         }
 
-        // GET: Admin/AdminProducts/Details/5
+        // ===============================
+        // DETAILS
+        // ===============================
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -62,91 +72,74 @@ namespace TechGearStore.Areas.Admin.Controllers
             return View(product);
         }
 
-        // GET: Admin/AdminProducts/Create
+        // ===============================
+        // CREATE
+        // ===============================
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["CategoryId"] =
+                new SelectList(_context.Categories, "Id", "Name");
+
             return View();
         }
 
-        // POST: Admin/AdminProducts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product, IFormFile imageFile, IFormFile[] galleryFiles)
+        public async Task<IActionResult> Create(
+            Product product,
+            IFormFile imageFile,
+            IFormFile[] galleryFiles)
         {
             if (ModelState.IsValid)
             {
-                // Upload ảnh chính
-                if (imageFile != null && imageFile.Length > 0)
+                try
                 {
-                    var extension = Path.GetExtension(imageFile.FileName);
-                    var fileName = Guid.NewGuid().ToString() + extension;
-
-                    var uploadPath = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot/images/products"
-                    );
-
-                    if (!Directory.Exists(uploadPath))
-                        Directory.CreateDirectory(uploadPath);
-
-                    var fullPath = Path.Combine(uploadPath, fileName);
-
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    if (imageFile != null)
                     {
-                        await imageFile.CopyToAsync(stream);
+                        product.ImageUrl = await UploadImage(imageFile);
                     }
 
-                    product.ImageUrl = "/images/products/" + fileName;
-                }
-
-                _context.Products.Add(product);
-                await _context.SaveChangesAsync();
-
-                // ===== Upload nhiều ảnh gallery =====
-
-                if (galleryFiles != null && galleryFiles.Length > 0)
-                {
-                    foreach (var file in galleryFiles)
-                    {
-                        if (file.Length > 0)
-                        {
-                            var extension = Path.GetExtension(file.FileName);
-                            var fileName = Guid.NewGuid().ToString() + extension;
-
-                            var uploadPath = Path.Combine(
-                                Directory.GetCurrentDirectory(),
-                                "wwwroot/images/products"
-                            );
-
-                            var fullPath = Path.Combine(uploadPath, fileName);
-
-                            using (var stream = new FileStream(fullPath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
-
-                            ProductImage img = new ProductImage
-                            {
-                                ProductId = product.ProductId,
-                                ImageUrl = "/images/products/" + fileName
-                            };
-
-                            _context.ProductImages.Add(img);
-                        }
-                    }
-
+                    _context.Products.Add(product);
                     await _context.SaveChangesAsync();
-                }
 
-                return RedirectToAction(nameof(Index));
+                    if (galleryFiles != null)
+                    {
+                        foreach (var file in galleryFiles)
+                        {
+                            if (file != null)
+                            {
+                                var url = await UploadImage(file);
+
+                                ProductImage img = new ProductImage
+                                {
+                                    ProductId = product.ProductId,
+                                    ImageUrl = url
+                                };
+
+                                _context.ProductImages.Add(img);
+                            }
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Lỗi upload ảnh.");
+                }
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+            ViewData["CategoryId"] =
+                new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+
             return View(product);
         }
 
-        // GET: Admin/AdminProducts/Edit/5
+        // ===============================
+        // EDIT
+        // ===============================
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -157,97 +150,65 @@ namespace TechGearStore.Areas.Admin.Controllers
 
             if (product == null) return NotFound();
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+            ViewData["CategoryId"] =
+                new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
 
             return View(product);
         }
 
-        // POST: Admin/AdminProducts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
     int id,
     Product product,
-    IFormFile? imageFile,
+    IFormFile imageFile,
     IFormFile[] galleryFiles)
         {
             if (id != product.ProductId)
                 return NotFound();
 
+            var existingProduct = await _context.Products
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (existingProduct == null)
+                return NotFound();
+
+            ModelState.Remove("Images");
+            ModelState.Remove("ImageUrl");
+
             if (ModelState.IsValid)
             {
-                var existingProduct = await _context.Products
-                    .Include(p => p.Images)
-                    .FirstOrDefaultAsync(p => p.ProductId == id);
-
-                if (existingProduct == null)
-                    return NotFound();
-
                 existingProduct.ProductName = product.ProductName;
                 existingProduct.Price = product.Price;
                 existingProduct.Description = product.Description;
                 existingProduct.CategoryId = product.CategoryId;
 
-                // ===== Upload ảnh chính =====
-                if (imageFile != null)
+                // Thumbnail
+                if (imageFile != null && imageFile.Length > 0)
                 {
-                    if (!string.IsNullOrEmpty(existingProduct.ImageUrl))
-                    {
-                        var oldPath = Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot",
-                            existingProduct.ImageUrl.TrimStart('/')
-                        );
-
-                        if (System.IO.File.Exists(oldPath))
-                            System.IO.File.Delete(oldPath);
-                    }
-
-                    var extension = Path.GetExtension(imageFile.FileName);
-                    var fileName = Guid.NewGuid().ToString() + extension;
-
-                    var uploadPath = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot/images/products"
-                    );
-
-                    var fullPath = Path.Combine(uploadPath, fileName);
-
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
-                    {
-                        await imageFile.CopyToAsync(stream);
-                    }
-
-                    existingProduct.ImageUrl = "/images/products/" + fileName;
+                    existingProduct.ImageUrl = await UploadImage(imageFile);
+                }
+                else
+                {
+                    existingProduct.ImageUrl = product.ImageUrl;
                 }
 
-                // ===== Upload gallery mới =====
+                // Gallery
                 if (galleryFiles != null && galleryFiles.Length > 0)
                 {
                     foreach (var file in galleryFiles)
                     {
-                        var extension = Path.GetExtension(file.FileName);
-                        var fileName = Guid.NewGuid().ToString() + extension;
-
-                        var uploadPath = Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot/images/products"
-                        );
-
-                        var fullPath = Path.Combine(uploadPath, fileName);
-
-                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        if (file != null && file.Length > 0)
                         {
-                            await file.CopyToAsync(stream);
+                            var url = await UploadImage(file);
+
+                            _context.ProductImages.Add(new ProductImage
+                            {
+                                ProductId = existingProduct.ProductId,
+                                ImageUrl = url
+                            });
                         }
-
-                        ProductImage img = new ProductImage
-                        {
-                            ProductId = existingProduct.ProductId,
-                            ImageUrl = "/images/products/" + fileName
-                        };
-
-                        _context.ProductImages.Add(img);
                     }
                 }
 
@@ -256,12 +217,15 @@ namespace TechGearStore.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+            ViewData["CategoryId"] =
+                new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
 
-            return View(product);
+            return View(existingProduct);
         }
 
-        // GET: Admin/AdminProducts/Delete/5
+        // ===============================
+        // DELETE
+        // ===============================
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -275,41 +239,32 @@ namespace TechGearStore.Areas.Admin.Controllers
             return View(product);
         }
 
-        // POST: Admin/AdminProducts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product != null)
             {
-                // xóa ảnh khỏi server
-                if (!string.IsNullOrEmpty(product.ImageUrl))
+                foreach (var img in product.Images)
                 {
-                    var path = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        product.ImageUrl.TrimStart('/')
-                    );
-
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                    }
+                    _context.ProductImages.Remove(img);
                 }
 
                 _context.Products.Remove(product);
+
                 await _context.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
-        }
+        // ===============================
+        // DELETE GALLERY IMAGE
+        // ===============================
         [HttpPost]
         public async Task<IActionResult> DeleteImage(int id)
         {
@@ -318,25 +273,41 @@ namespace TechGearStore.Areas.Admin.Controllers
             if (image == null)
                 return NotFound();
 
-            if (!string.IsNullOrEmpty(image.ImageUrl))
-            {
-                var path = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot",
-                    image.ImageUrl.TrimStart('/')
-                );
-
-                if (System.IO.File.Exists(path))
-                    System.IO.File.Delete(path);
-            }
-
-            int productId = image.ProductId;
-
             _context.ProductImages.Remove(image);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Edit", new { id = productId });
+            return Ok();
+        }
+
+        // ===============================
+        // HELPER UPLOAD IMAGE
+        // ===============================
+        private async Task<string> UploadImage(IFormFile file)
+        {
+            var extension = Path.GetExtension(file.FileName).ToLower();
+
+            string[] allowExt = { ".jpg", ".jpeg", ".png", ".webp" };
+
+            if (!allowExt.Contains(extension))
+                throw new Exception("File không hợp lệ");
+
+            var fileName = Guid.NewGuid().ToString() + extension;
+
+            var path = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/images/products");
+
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            var filePath = Path.Combine(path, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return "/images/products/" + fileName;
         }
     }
-
 }

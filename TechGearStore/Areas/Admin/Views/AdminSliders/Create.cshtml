@@ -1,0 +1,54 @@
+﻿@model TechGearStore.Models.Slider
+
+@{
+    ViewData["Title"] = "Thêm Slider";
+}
+
+<h2 class="mb-4">Thêm Slider</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <form asp-action="Create" enctype="multipart/form-data">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label">Tiêu đề</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ảnh Slider</label>
+                <input asp-for="ImageFile" type="file" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Link" class="form-label">Link khi bấm vào slider</label>
+                <input asp-for="Link" class="form-control" placeholder="/Products" />
+                <span asp-validation-for="Link" class="text-danger"></span>
+            </div>
+
+            <div class="mt-3">
+
+                <button type="submit" class="btn btn-success">
+                    Tạo Slider
+                </button>
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Quay lại
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

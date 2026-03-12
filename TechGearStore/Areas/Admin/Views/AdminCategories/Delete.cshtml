@@ -1,27 +1,41 @@
 ﻿@model TechGearStore.Models.Category
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xóa danh mục";
 }
 
-<h1>Delete</h1>
+<h2 class="mb-4 text-danger">Xóa danh mục</h2>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Category</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+<div class="card shadow-sm border-danger">
+
+    <div class="card-body">
+
+        <div class="alert alert-danger">
+            <strong>Cảnh báo!</strong> Bạn có chắc muốn xóa danh mục này không?
+        </div>
+
+        <table class="table table-bordered">
+
+            <tr>
+                <th style="width:200px">Tên danh mục</th>
+                <td>@Model.Name</td>
+            </tr>
+
+        </table>
+
+        <form asp-action="Delete">
+
+            <input type="hidden" asp-for="Id" />
+
+            <button type="submit" class="btn btn-danger">
+                Xóa danh mục
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Hủy
+            </a>
+
+        </form>
+
+    </div>
 </div>

@@ -1,0 +1,62 @@
+﻿@model TechGearStore.Models.News
+
+@{
+    ViewData["Title"] = "Xóa tin tức";
+}
+
+<h2 class="mb-4 text-danger">Xóa tin tức</h2>
+
+<h5 class="mb-3">Bạn có chắc chắn muốn xóa tin này không?</h5>
+
+<div class="row">
+    <div class="col-md-8">
+
+        <div class="card border-danger">
+
+            <div class="card-body">
+
+                <h4 class="card-title">
+                    @Model.Title
+                </h4>
+
+                <div class="mb-3">
+                    <strong>Ngày đăng:</strong>
+                    @Model.CreatedDate.ToString("dd/MM/yyyy")
+                </div>
+
+                <div class="mb-3">
+                    <strong>Ảnh tin tức:</strong><br />
+
+                    <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/no-image.png" : Model.ImageUrl)"
+                         style="width:250px;border-radius:8px;border:1px solid #ddd;padding:5px;" />
+                </div>
+
+                <div class="mb-3">
+                    <strong>Nội dung:</strong>
+
+                    <p class="mt-2">
+                        @Model.Content
+                    </p>
+                </div>
+
+                <form asp-action="Delete" method="post">
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <button type="submit" class="btn btn-danger">
+                        Xóa tin tức
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Hủy
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

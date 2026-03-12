@@ -1,3 +1,56 @@
-﻿<h2>Dashboard</h2>
+﻿<h2 class="mb-4">Bảng điều khiển</h2>
 
-<p>Chào mừng bạn đến trang quản trị.</p>
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>📦 Tổng sản phẩm</h5>
+                <h2>@ViewBag.Products</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>📂 Danh mục</h5>
+                <h2>@ViewBag.Categories</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5>🧾 Đơn hàng</h5>
+                <h2>@ViewBag.Orders</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h5>👤 Người dùng</h5>
+                <h2>@ViewBag.Users</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<br />
+
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5>📩 Liên hệ</h5>
+                <h2>@ViewBag.Contacts</h2>
+            </div>
+        </div>
+    </div>
+
+</div>

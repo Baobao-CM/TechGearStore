@@ -62,38 +62,32 @@
             <div class="form-group mb-3">
                 <label>Ảnh chi tiết hiện tại</label>
 
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
 
-                    @if (Model.Images != null && Model.Images.Any())
+                    @foreach (var img in Model.Images)
                     {
-                        foreach (var img in Model.Images)
-                        {
-                            <div style="position:relative">
+                        <div style="position:relative; width:120px;">
 
-                                <img src="@img.ImageUrl"
-                                     style="width:120px;height:120px;object-fit:cover;border:1px solid #ddd;border-radius:5px;" />
+                            <img src="@img.ImageUrl"
+                                 style="width:120px;height:120px;object-fit:cover;border:1px solid #ddd;border-radius:6px;" />
 
-                                <button type="button"
-                                        onclick="deleteImage(@img.Id)"
-                                        style="position:absolute;
-                                               top:-8px;
-                                               right:-8px;
-                                               background:red;
-                                               color:white;
-                                               border:none;
-                                               border-radius:50%;
-                                               width:25px;
-                                               height:25px;
-                                               cursor:pointer;">
-                                    ✕
-                                </button>
+                            <button type="button"
+                                    onclick="deleteImage(@img.Id)"
+                                    style="
+                        position:absolute;
+                        top:-10px;
+                        right:-10px;
+                        background:red;
+                        color:white;
+                        border:none;
+                        width:28px;
+                        height:28px;
+                        border-radius:50%;
+                        cursor:pointer;">
+                                ✕
+                            </button>
 
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p>Chưa có ảnh chi tiết.</p>
+                        </div>
                     }
 
                 </div>
@@ -105,7 +99,8 @@
                 <input type="file"
                        name="galleryFiles"
                        multiple
-                       class="form-control" />
+                       class="form-control"
+                       accept="image/*" />
             </div>
 
             <!-- Category -->
@@ -156,9 +151,20 @@
         }
 
         function deleteImage(id) {
-            if (confirm("Bạn có chắc muốn xoá ảnh này?")) {
-                window.location.href = "/Admin/AdminProducts/DeleteImage/" + id;
+
+            if (!confirm("Bạn có chắc muốn xoá ảnh này?")) {
+                return;
             }
+
+            fetch('/Admin/AdminProducts/DeleteImage/' + id, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+
         }
 
     </script>

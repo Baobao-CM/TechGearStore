@@ -1,0 +1,77 @@
+﻿@model IEnumerable<TechGearStore.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+
+<h2 class="mb-4">Quản lý đơn hàng</h2>
+
+<table class="table table-bordered">
+
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Khách hàng</th>
+            <th>Điện thoại</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th width="120">Thao tác</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.OrderId</td>
+
+                <td>@item.CustomerName</td>
+
+                <td>@item.Phone</td>
+
+                <td>@item.OrderDate.ToString("dd/MM/yyyy")</td>
+
+                <td>@item.TotalAmount.ToString("N0") VNĐ</td>
+
+                <td>
+
+                    @if (item.Status == "Đã giao")
+                    {
+                        <span class="badge bg-success">Đã giao</span>
+                    }
+                    else if (item.Status == "Đang giao")
+                    {
+                        <span class="badge bg-primary">Đang giao</span>
+                    }
+                    else if (item.Status == "Chờ xử lý")
+                    {
+                        <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Đã hủy</span>
+                    }
+
+                </td>
+
+                <td>
+
+                    <a asp-action="Details"
+                       asp-route-id="@item.OrderId"
+                       class="btn btn-info btn-sm">
+
+                        👁 Xem
+
+                    </a>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>

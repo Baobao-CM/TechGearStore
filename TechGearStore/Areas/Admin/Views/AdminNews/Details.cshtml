@@ -1,0 +1,57 @@
+﻿@model TechGearStore.Models.News
+
+@{
+    ViewData["Title"] = "Chi tiết tin tức";
+}
+
+<h2 class="mb-4">Chi tiết tin tức</h2>
+
+<div class="row">
+    <div class="col-md-8">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h4 class="card-title mb-3">
+                    @Model.Title
+                </h4>
+
+                <div class="mb-3">
+                    <strong>Ngày đăng:</strong>
+                    @Model.CreatedDate.ToString("dd/MM/yyyy")
+                </div>
+
+                <div class="mb-3">
+                    <strong>Ảnh tin tức:</strong><br />
+
+                    <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/no-image.png" : Model.ImageUrl)"
+                         style="width:300px;border-radius:8px;border:1px solid #ddd;padding:5px;" />
+
+                </div>
+
+                <div class="mb-3">
+                    <strong>Nội dung:</strong>
+
+                    <p class="mt-2">
+                        @Model.Content
+                    </p>
+                </div>
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-warning">
+                    Chỉnh sửa
+                </a>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    Quay lại
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

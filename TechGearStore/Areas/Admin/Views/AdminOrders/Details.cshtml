@@ -1,0 +1,51 @@
+﻿@model IEnumerable<TechGearStore.Models.OrderDetail>
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+
+<h2 class="mb-4">Chi tiết đơn hàng</h2>
+
+<table class="table table-bordered">
+
+    <thead class="table-dark">
+        <tr>
+            <th>Sản phẩm</th>
+            <th width="120">Số lượng</th>
+            <th width="150">Giá</th>
+            <th width="150">Thành tiền</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+                    @(item.Product?.ProductName ?? "Không có sản phẩm")
+                </td>
+
+                <td>
+                    @item.Quantity
+                </td>
+
+                <td>
+                    @item.Price.ToString("N0") VNĐ
+                </td>
+
+                <td>
+                    @((item.Price * item.Quantity).ToString("N0")) VNĐ
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">
+    ← Quay lại
+</a>

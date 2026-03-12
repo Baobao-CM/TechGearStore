@@ -1,0 +1,78 @@
+﻿@model TechGearStore.Models.Event
+
+@{
+    ViewData["Title"] = "Xóa sự kiện";
+}
+
+<h2 class="mb-4 text-danger">Xóa sự kiện</h2>
+
+<div class="card shadow-sm border-danger">
+
+    <div class="card-body">
+
+        <div class="alert alert-danger">
+
+            <strong>Cảnh báo!</strong> Bạn có chắc chắn muốn xóa sự kiện này không?
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl"
+                         class="img-fluid rounded border"
+                         style="max-height:220px;object-fit:cover;" />
+                }
+                else
+                {
+
+                    <div class="text-muted">Không có ảnh</div>
+                }
+
+            </div>
+
+            <div class="col-md-8">
+
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th style="width:200px">Tiêu đề</th>
+                        <td>@Model.Title</td>
+                    </tr>
+
+                    <tr>
+                        <th>Mô tả</th>
+                        <td>@Model.Description</td>
+                    </tr>
+
+                    <tr>
+                        <th>Ngày sự kiện</th>
+                        <td>@Model.EventDate.ToString("dd/MM/yyyy")</td>
+                    </tr>
+
+                </table>
+
+                <form asp-action="Delete">
+
+                    <input type="hidden" asp-for="EventId" />
+
+                    <button type="submit" class="btn btn-danger">
+                        Xóa sự kiện
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        Hủy
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

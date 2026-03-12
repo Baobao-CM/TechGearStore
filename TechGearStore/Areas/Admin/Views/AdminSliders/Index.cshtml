@@ -1,0 +1,40 @@
+﻿@model IEnumerable<TechGearStore.Models.Slider>
+
+<h2>Quản lý Slider</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Thêm Slider</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tiêu đề</th>
+            <th>Ảnh</th>
+            <th>Link</th>
+            <th width="200">Thao tác</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+
+                <td>
+                    <img src="@item.ImageUrl"
+                         style="width:200px;border-radius:6px;" />
+                </td>
+
+                <td>@item.Link</td>
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Chi tiết</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

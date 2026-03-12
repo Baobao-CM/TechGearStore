@@ -1,0 +1,111 @@
+﻿@model TechGearStore.Models.News
+
+@{
+    ViewData["Title"] = "Chỉnh sửa tin tức";
+}
+
+<h2 class="mb-4">Chỉnh sửa tin tức</h2>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <form asp-area="Admin"
+              asp-controller="AdminNews"
+              asp-action="Edit"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ImageUrl" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Title -->
+            <div class="form-group mb-3">
+                <label asp-for="Title" class="form-label">Tiêu đề</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <!-- Content -->
+            <div class="form-group mb-3">
+                <label asp-for="Content" class="form-label">Nội dung</label>
+                <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <!-- Current Image -->
+            <div class="form-group mb-3">
+                <label class="form-label">Ảnh hiện tại</label><br />
+
+                <img id="previewImage"
+                     src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/no-image.png" : Model.ImageUrl)"
+                     style="width:150px;border-radius:8px;border:1px solid #ccc;padding:5px;" />
+
+            </div>
+
+            <!-- Upload New Image -->
+            <div class="form-group mb-3">
+                <label class="form-label">Thay ảnh mới</label>
+
+                <input type="file"
+                       name="ImageFile"
+                       class="form-control"
+                       onchange="previewFile(event)" />
+
+            </div>
+
+            <!-- Date -->
+            <div class="form-group mb-3">
+                <label class="form-label">Ngày đăng</label>
+
+                <input asp-for="CreatedDate"
+                       class="form-control"
+                       readonly />
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group">
+
+                <button type="submit" class="btn btn-primary">
+                    Lưu thay đổi
+                </button>
+
+                <a asp-area="Admin"
+                   asp-controller="AdminNews"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Quay lại
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        function previewFile(event) {
+
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                document.getElementById("previewImage").src = reader.result;
+            }
+
+            reader.readAsDataURL(event.target.files[0]);
+
+        }
+
+    </script>
+
+}

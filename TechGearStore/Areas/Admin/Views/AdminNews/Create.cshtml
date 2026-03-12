@@ -1,0 +1,92 @@
+﻿@model TechGearStore.Models.News
+
+@{
+    ViewData["Title"] = "Tạo tin tức";
+}
+
+<h2 class="mb-4">Tạo tin tức mới</h2>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <form asp-area="Admin"
+              asp-controller="AdminNews"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Title -->
+            <div class="form-group mb-3">
+                <label asp-for="Title" class="form-label">Tiêu đề</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <!-- Content -->
+            <div class="form-group mb-3">
+                <label asp-for="Content" class="form-label">Nội dung</label>
+                <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <!-- Upload Image -->
+            <div class="form-group mb-3">
+                <label class="form-label">Ảnh tin tức</label>
+
+                <input type="file"
+                       name="ImageFile"
+                       class="form-control"
+                       onchange="previewImage(event)" />
+
+            </div>
+
+            <!-- Preview -->
+            <div class="form-group mb-3">
+                <img id="preview"
+                     src="/images/no-image.png"
+                     style="width:150px;border-radius:8px;border:1px solid #ccc;padding:5px;" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Tạo tin tức
+            </button>
+
+            <a asp-area="Admin"
+               asp-controller="AdminNews"
+               asp-action="Index"
+               class="btn btn-secondary">
+                Quay lại
+            </a>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        function previewImage(event) {
+
+            var reader = new FileReader();
+
+            reader.onload = function () {
+                document.getElementById("preview").src = reader.result;
+            }
+
+            reader.readAsDataURL(event.target.files[0]);
+
+        }
+
+    </script>
+
+}

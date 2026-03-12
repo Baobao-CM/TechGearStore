@@ -1,0 +1,65 @@
+﻿@model TechGearStore.Models.Slider
+
+@{
+    ViewData["Title"] = "Chi tiết Slider";
+}
+
+<h2 class="mb-4">Chi tiết Slider</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4">
+
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl"
+                         class="img-fluid rounded border"
+                         style="max-height:220px;object-fit:cover;" />
+                }
+                else
+                {
+                    <div class="text-muted">Không có ảnh</div>
+                }
+
+            </div>
+
+            <div class="col-md-8">
+
+                <table class="table table-bordered">
+
+                    <tr>
+                        <th style="width:200px">Tiêu đề</th>
+                        <td>@Model.Title</td>
+                    </tr>
+
+                    <tr>
+                        <th>Link</th>
+                        <td>@Model.Link</td>
+                    </tr>
+
+                </table>
+
+                <div class="mt-3">
+
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-warning">
+                        Sửa
+                    </a>
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Quay lại
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
