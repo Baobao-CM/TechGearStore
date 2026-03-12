@@ -1,0 +1,112 @@
+﻿@model TechGearStore.Models.User
+
+@{
+    ViewData["Title"] = "Xác nhận xóa người dùng";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">Xác nhận xóa người dùng</h4>
+    </div>
+
+    <div class="card-body">
+        <div class="alert alert-danger mb-4">
+            <i class="fas fa-exclamation-triangle me-2 fa-lg"></i>
+            <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác. Tài khoản và dữ liệu liên quan (nếu có) sẽ bị xóa vĩnh viễn.
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-8">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 fw-bold py-2">Họ và tên</dt>
+                    <dd class="col-sm-8 py-2">@Model.FullName</dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Email</dt>
+                    <dd class="col-sm-8 py-2">@Model.Email</dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Vai trò</dt>
+                    <dd class="col-sm-8 py-2">
+                        <span class="badge @(Model.Role == "Admin" ? "bg-danger" : "bg-secondary")">
+                            @Model.Role
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Trạng thái</dt>
+                    <dd class="col-sm-8 py-2">
+                        <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger")">
+                            @(Model.IsActive ? "Hoạt động" : "Khóa")
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Ngày tạo</dt>
+                    <dd class="col-sm-8 py-2">@Model.CreatedAt.ToString("dd/MM/yyyy")</dd>
+                </dl>
+            </div>
+
+            @if (Model.Role == "Admin")
+            {
+                <div class="col-md-4">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Đây là tài khoản Admin. Nếu đây là admin cuối cùng, hệ thống sẽ không cho phép xóa.
+                    </div>
+                </div>
+            }
+        </div>
+
+        <form asp-action="Delete" id="deleteForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="UserId" />
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-danger btn-lg" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i> Xác nhận xóa
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Hủy và quay lại
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('deleteForm');
+            const btn = document.getElementById('confirmDeleteBtn');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Bạn có chắc chắn?',
+                    html: `Xóa người dùng "<strong>@(Model.FullName ?? Model.Email)</strong>"?<br>
+                                                           Email: <em>@Model.Email</em><br>
+                                                           Vai trò: <strong>@Model.Role</strong><br><br>
+                                                           <span class="text-danger">Không thể khôi phục sau khi xóa!</span>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Xóa vĩnh viễn',
+                    cancelButtonText: 'Hủy bỏ'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xóa...';
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

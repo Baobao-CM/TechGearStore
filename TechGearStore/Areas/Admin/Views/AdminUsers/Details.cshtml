@@ -1,0 +1,76 @@
+﻿@model TechGearStore.Models.User
+
+@{
+    ViewData["Title"] = "Chi tiết người dùng";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Chi tiết người dùng</h4>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.UserId" class="btn btn-warning btn-sm me-2">
+                <i class="fas fa-edit me-1"></i> Sửa
+            </a>
+            <a asp-action="Index" class="btn btn-light btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row g-4">
+            <!-- Thông tin chính -->
+            <div class="col-md-8">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 fw-bold py-2">ID người dùng</dt>
+                    <dd class="col-sm-8 py-2"><code>@Model.UserId</code></dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Họ và tên</dt>
+                    <dd class="col-sm-8 py-2">@Model.FullName</dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Email</dt>
+                    <dd class="col-sm-8 py-2">
+                        <a href="mailto:@Model.Email" class="text-primary">@Model.Email</a>
+                    </dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Vai trò</dt>
+                    <dd class="col-sm-8 py-2">
+                        <span class="badge @(Model.Role == "Admin" ? "bg-danger" : Model.Role == "Staff" ? "bg-warning" : "bg-success") fs-6 px-3 py-2">
+                            @Model.Role
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Trạng thái</dt>
+                    <dd class="col-sm-8 py-2">
+                        <span class="badge @(Model.IsActive ? "bg-success" : "bg-danger") fs-6 px-3 py-2">
+                            @(Model.IsActive ? "Đang hoạt động" : "Đã khóa")
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-4 fw-bold py-2">Ngày tạo tài khoản</dt>
+                    <dd class="col-sm-8 py-2">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+                </dl>
+            </div>
+
+            <!-- Cột phải: Hành động nhanh + cảnh báo -->
+            <div class="col-md-4 text-center text-md-start">
+                @if (!Model.IsActive)
+                {
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-lock me-2"></i>
+                        Tài khoản này đang bị khóa
+                    </div>
+                }
+
+                <div class="d-grid gap-2">
+                    <a asp-action="ChangePassword" asp-route-id="@Model.UserId" class="btn btn-outline-secondary">
+                        <i class="fas fa-key me-1"></i> Đổi mật khẩu
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.UserId" class="btn btn-outline-danger">
+                        <i class="fas fa-trash me-1"></i> Xóa người dùng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

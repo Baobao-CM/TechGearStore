@@ -7,72 +7,93 @@
 <h2 class="mb-4 text-danger">Xóa sự kiện</h2>
 
 <div class="card shadow-sm border-danger">
-
     <div class="card-body">
-
-        <div class="alert alert-danger">
-
+        <div class="alert alert-danger" role="alert">
             <strong>Cảnh báo!</strong> Bạn có chắc chắn muốn xóa sự kiện này không?
-
+            <br /><small>Hành động này không thể hoàn tác và sẽ xóa cả ảnh liên quan.</small>
         </div>
 
         <div class="row">
-
-            <div class="col-md-4">
-
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            <!-- Ảnh sự kiện -->
+            <div class="col-md-4 text-center mb-4 mb-md-0">
+                <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/no-image.png" : Model.ImageUrl)"
+                     alt="@Model.Title"
+                     class="img-fluid rounded border shadow-sm"
+                     style="max-height:220px; object-fit:cover;" />
+                @if (string.IsNullOrEmpty(Model.ImageUrl))
                 {
-                    <img src="@Model.ImageUrl"
-                         class="img-fluid rounded border"
-                         style="max-height:220px;object-fit:cover;" />
+                    <p class="text-muted mt-2">Không có ảnh thumbnail</p>
                 }
-                else
-                {
-
-                    <div class="text-muted">Không có ảnh</div>
-                }
-
             </div>
 
+            <!-- Thông tin sự kiện -->
             <div class="col-md-8">
-
-                <table class="table table-bordered">
-
-                    <tr>
-                        <th style="width:200px">Tiêu đề</th>
-                        <td>@Model.Title</td>
-                    </tr>
-
-                    <tr>
-                        <th>Mô tả</th>
-                        <td>@Model.Description</td>
-                    </tr>
-
-                    <tr>
-                        <th>Ngày sự kiện</th>
-                        <td>@Model.EventDate.ToString("dd/MM/yyyy")</td>
-                    </tr>
-
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <tr>
+                            <th style="width:200px">Tiêu đề</th>
+                            <td><strong>@Model.Title</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Mô tả</th>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.Description))
+                                {
+                                    <div style="max-height:150px; overflow-y:auto;">
+                                        @Model.Description
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có mô tả</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày sự kiện</th>
+                            <td>@Model.EventDate.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td>
+                                @if (Model.EventDate > DateTime.Now)
+                                {
+                                    <span class="badge bg-info">Sắp diễn ra</span>
+                                }
+                                else if (Model.EventDate.Date == DateTime.Today)
+                                {
+                                    <span class="badge bg-success">Đang diễn ra</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Đã kết thúc</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo</th>
+                            <td>@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </tbody>
                 </table>
 
-                <form asp-action="Delete">
-
+                <form asp-area="Admin"
+                      asp-controller="AdminEvents"
+                      asp-action="Delete"
+                      method="post">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="EventId" />
 
-                    <button type="submit" class="btn btn-danger">
-                        Xóa sự kiện
-                    </button>
-
-                    <a asp-action="Index" class="btn btn-secondary">
-                        Hủy
-                    </a>
-
+                    <div class="mt-4 d-flex gap-3">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-1"></i> Xóa sự kiện
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Hủy
+                        </a>
+                    </div>
                 </form>
-
             </div>
-
         </div>
-
     </div>
-
 </div>

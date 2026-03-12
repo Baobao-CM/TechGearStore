@@ -1,0 +1,117 @@
+﻿@model TechGearStore.Models.User
+
+@{
+    ViewData["Title"] = "Chỉnh sửa người dùng";
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Chỉnh sửa thông tin người dùng</h4>
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card-body">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-action="Edit">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="UserId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+            <div class="row">
+                <!-- Cột trái: Thông tin cơ bản -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-bold">Họ và tên <span class="text-danger">*</span></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên đầy đủ" autofocus />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <div class="form-text text-muted">Email dùng để đăng nhập và khôi phục tài khoản.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-bold">Vai trò</label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="Admin">Admin (Quản trị viên)</option>
+                            <option value="Staff">Nhân viên</option>
+                            <option value="Customer">Khách hàng</option>
+                        </select>
+                        <div class="form-text text-muted">Vai trò quyết định quyền truy cập trong hệ thống.</div>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Trạng thái và thông tin bổ sung -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Trạng thái tài khoản</label>
+                        <div class="form-check form-switch mt-2">
+                            <input asp-for="IsActive" type="checkbox" class="form-check-input" id="IsActiveSwitch" />
+                            <label class="form-check-label" for="IsActiveSwitch">
+                                @(Model.IsActive ? "Đang hoạt động" : "Đã khóa")
+                            </label>
+                        </div>
+                        <div class="form-text text-muted">
+                            Nếu tắt, người dùng sẽ không thể đăng nhập.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ngày tạo tài khoản</label>
+                        <input type="text" class="form-control" value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")" disabled />
+                    </div>
+
+                    <!-- Nút đổi mật khẩu riêng -->
+                    <div class="mb-4">
+                        <a asp-action="ChangePassword" asp-route-id="@Model.UserId" class="btn btn-outline-secondary">
+                            <i class="fas fa-key me-1"></i> Đổi mật khẩu
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg me-3" id="saveBtn">
+                    <i class="fas fa-save me-1"></i> Lưu thay đổi
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times me-1"></i> Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Loading khi submit
+        document.querySelector('form').addEventListener('submit', function () {
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang lưu...';
+        });
+
+        // Cập nhật text label khi toggle switch
+        const switchInput = document.getElementById('IsActiveSwitch');
+        const label = switchInput.nextElementSibling;
+        switchInput.addEventListener('change', function () {
+            label.textContent = this.checked ? 'Đang hoạt động' : 'Đã khóa';
+        });
+    </script>
+}

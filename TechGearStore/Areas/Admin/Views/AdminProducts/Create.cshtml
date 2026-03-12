@@ -1,7 +1,7 @@
 ﻿@model TechGearStore.Models.Product
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Tạo mới sản phẩm";
 }
 
 <h1>Tạo mới sản phẩm</h1>
@@ -9,59 +9,67 @@
 
 <div class="row">
     <div class="col-md-4">
-
         <form asp-area="Admin"
               asp-controller="AdminProducts"
               asp-action="Create"
               method="post"
               enctype="multipart/form-data">
-
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="ProductName">Tên sản phẩm</label>
-                <input asp-for="ProductName" class="form-control" />
+                <input asp-for="ProductName" class="form-control" placeholder="Nhập tên sản phẩm" />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="Price">Giá tiền (VND)</label>
-                <input asp-for="Price" class="form-control" />
+                <input asp-for="Price" class="form-control" placeholder="Nhập giá sản phẩm" />
+                <span asp-validation-for="Price" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="Description">Chi tiết sản phẩm</label>
-                <input asp-for="Description" class="form-control" />
+                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả sản phẩm..."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
-                <label>Ảnh sản phẩm</label>
-                <input type="file" name="imageFile" class="form-control" />
+            <!-- THÊM MỚI: Số lượng tồn kho -->
+            <div class="form-group mb-3">
+                <label asp-for="StockQuantity">Số lượng tồn kho</label>
+                <input asp-for="StockQuantity" class="form-control" type="number" min="0" placeholder="Nhập số lượng tồn kho" />
+                <span asp-validation-for="StockQuantity" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label>Ảnh chi tiết</label>
-                <input type="file"
-                       name="galleryFiles"
-                       multiple
-                       class="form-control" />
-            </div>
-            <div class="form-group">
+
+            <div class="form-group mb-3">
                 <label asp-for="CategoryId">Danh mục</label>
-                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control"></select>
+                <select asp-for="CategoryId" asp-items="ViewBag.CategoryId" class="form-control">
+                    <option value="">-- Chọn danh mục --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Ảnh sản phẩm (thumbnail)</label>
+                <input type="file" name="imageFile" accept="image/*" class="form-control" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label>Ảnh chi tiết (gallery - chọn nhiều ảnh)</label>
+                <input type="file" name="galleryFiles" multiple accept="image/*" class="form-control" />
             </div>
 
             <br />
-
             <button type="submit" class="btn btn-primary">
                 Tạo
             </button>
-
         </form>
-
     </div>
 </div>
-<div>
+
+<div class="mt-3">
     <a asp-area="Admin" asp-controller="AdminProducts" asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
 </div>
 

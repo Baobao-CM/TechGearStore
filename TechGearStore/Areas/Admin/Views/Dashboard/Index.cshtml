@@ -1,56 +1,104 @@
-﻿<h2 class="mb-4">Bảng điều khiển</h2>
+﻿@{
+    ViewData["Title"] = "Bảng điều khiển Admin";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml"; // hoặc Areas/Admin/Views/Shared/_AdminLayout.cshtml
+}
 
-<div class="row">
+<h2 class="mb-4 text-primary">Bảng điều khiển TechGear</h2>
 
-    <div class="col-md-3">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h5>📦 Tổng sản phẩm</h5>
-                <h2>@ViewBag.Products</h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5>📂 Danh mục</h5>
-                <h2>@ViewBag.Categories</h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h5>🧾 Đơn hàng</h5>
-                <h2>@ViewBag.Orders</h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h5>👤 Người dùng</h5>
-                <h2>@ViewBag.Users</h2>
-            </div>
-        </div>
-    </div>
-
+<!-- Nút lọc thời gian -->
+<div class="btn-group mb-4" role="group">
+    <a asp-action="Index" asp-route-period="today" class="btn btn-outline-primary @(ViewBag.Period == "today" ? "active" : "")">Hôm nay</a>
+    <a asp-action="Index" asp-route-period="week" class="btn btn-outline-primary @(ViewBag.Period == "week" ? "active" : "")">Tuần này</a>
+    <a asp-action="Index" asp-route-period="month" class="btn btn-outline-primary @(ViewBag.Period == "month" ? "active" : "")">Tháng này</a>
+    <a asp-action="Index" asp-route-period="year" class="btn btn-outline-primary @(ViewBag.Period == "year" ? "active" : "")">Năm nay</a>
 </div>
 
-<br />
-
-<div class="row">
-
-    <div class="col-md-3">
-        <div class="card bg-danger text-white">
+<div class="row g-4">
+    <!-- Card thống kê chính -->
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm bg-primary text-white h-100">
             <div class="card-body">
-                <h5>📩 Liên hệ</h5>
-                <h2>@ViewBag.Contacts</h2>
+                <h6 class="card-title">Tổng sản phẩm</h6>
+                <h3>@ViewBag.TotalProducts</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm bg-success text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">Tổng đơn hàng</h6>
+                <h3>@ViewBag.TotalOrders</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+            <div class="card-body">
+                <h6 class="card-title">Doanh thu (@ViewBag.Period switch {"today" => "hôm nay", "week" => "tuần này", _ => "tháng này"})</h6>
+                <h3>@ViewBag.TotalRevenue.ToString("N0") ₫</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm bg-danger text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">Đơn chờ xử lý</h6>
+                <h3>@ViewBag.PendingOrders</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Biểu đồ doanh thu</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="200"></canvas>
             </div>
         </div>
     </div>
 
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Cảnh báo nhanh</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Sản phẩm sắp hết hàng:</strong> @ViewBag.LowStockProducts</p>
+                <p><strong>Tổng danh mục:</strong> @ViewBag.TotalCategories</p>
+                <p><strong>Tổng người dùng:</strong> @ViewBag.TotalUsers</p>
+                <p><strong>Liên hệ chưa đọc:</strong> @ViewBag.TotalContacts</p> <!-- có thể lọc IsRead = false nếu có -->
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.ChartLabels)),
+                datasets: [{
+                    label: 'Doanh thu (₫)',
+                    data: @Html.Raw(Json.Serialize(ViewBag.ChartData)),
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+}

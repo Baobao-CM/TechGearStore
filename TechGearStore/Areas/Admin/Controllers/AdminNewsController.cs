@@ -40,7 +40,9 @@ namespace TechGearStore.Areas.Admin.Controllers
 
             ViewBag.Search = search;
 
-            return View(news.ToPagedList(pageNumber, pageSize));
+            var pagedNews = news.ToPagedList(pageNumber, pageSize);
+
+            return View(pagedNews);
         }
 
         // ==========================
@@ -61,10 +63,14 @@ namespace TechGearStore.Areas.Admin.Controllers
                 {
                     news.ImageUrl = await UploadImage(news.ImageFile);
                 }
+                else
+                {
+                    news.ImageUrl = "/images/no-image.png";
+                }
 
                 news.CreatedDate = DateTime.Now;
 
-                _context.Add(news);
+                _context.News.Add(news);
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
@@ -130,6 +136,20 @@ namespace TechGearStore.Areas.Admin.Controllers
             return View(news);
         }
 
+        // ==========================
+        // DETAILS
+        // ==========================
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var news = await _context.News
+                .FirstOrDefaultAsync(n => n.Id == id);
+
+            if (news == null) return NotFound();
+
+            return View(news);
+        }
         // ==========================
         // DELETE
         // ==========================

@@ -40,7 +40,9 @@ namespace TechGearStore.Areas.Admin.Controllers
 
             ViewBag.Search = search;
 
-            return View(events.ToPagedList(pageNumber, pageSize));
+            var pagedEvents = events.ToPagedList(pageNumber, pageSize);
+
+            return View(pagedEvents);
         }
 
         // =========================

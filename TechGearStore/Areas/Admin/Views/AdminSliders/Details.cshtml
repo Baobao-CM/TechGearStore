@@ -4,62 +4,97 @@
     ViewData["Title"] = "Chi tiết Slider";
 }
 
-<h2 class="mb-4">Chi tiết Slider</h2>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Chi tiết Slider</h4>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm me-2">
+                <i class="fas fa-edit me-1"></i> Sửa
+            </a>
+            <button class="btn btn-danger btn-sm delete-btn" data-id="@Model.Id" data-title="@Model.Title">
+                <i class="fas fa-trash me-1"></i> Xóa
+            </button>
+        </div>
+    </div>
 
-<div class="card shadow-sm">
     <div class="card-body">
-
-        <div class="row">
-
-            <div class="col-md-4">
-
+        <div class="row g-4">
+            <!-- Ảnh slider -->
+            <div class="col-md-5 col-lg-4 text-center">
                 @if (!string.IsNullOrEmpty(Model.ImageUrl))
                 {
-                    <img src="@Model.ImageUrl"
-                         class="img-fluid rounded border"
-                         style="max-height:220px;object-fit:cover;" />
+                    <img src="@Model.ImageUrl" alt="@Model.Title"
+                         class="img-fluid rounded shadow"
+                         style="max-height: 400px; object-fit: contain; border: 1px solid #dee2e6;" />
                 }
                 else
                 {
-                    <div class="text-muted">Không có ảnh</div>
+                    <div class="bg-light rounded p-5 text-center text-muted">
+                        <i class="fas fa-image fa-4x mb-3"></i>
+                        <p>Không có ảnh slider</p>
+                    </div>
                 }
-
             </div>
 
-            <div class="col-md-8">
+            <!-- Thông tin chi tiết -->
+            <div class="col-md-7 col-lg-8">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 fw-bold py-2">Tiêu đề slider</dt>
+                    <dd class="col-sm-8 py-2">@Model.Title</dd>
 
-                <table class="table table-bordered">
+                    <dt class="col-sm-4 fw-bold py-2">Link đích</dt>
+                    <dd class="col-sm-8 py-2">
+                        @if (!string.IsNullOrEmpty(Model.Link))
+                        {
+                            <a href="@Model.Link" target="_blank" class="text-primary fw-medium">
+                                @Model.Link <i class="fas fa-external-link-alt ms-1 small"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không có link</span>
+                        }
+                    </dd>
 
-                    <tr>
-                        <th style="width:200px">Tiêu đề</th>
-                        <td>@Model.Title</td>
-                    </tr>
+                    <dt class="col-sm-4 fw-bold py-2">ID Slider</dt>
+                    <dd class="col-sm-8 py-2"><code>@Model.Id</code></dd>
+                </dl>
 
-                    <tr>
-                        <th>Link</th>
-                        <td>@Model.Link</td>
-                    </tr>
-
-                </table>
-
-                <div class="mt-3">
-
-                    <a asp-action="Edit"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-warning">
-                        Sửa
+                <div class="mt-4">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
                     </a>
-
-                    <a asp-action="Index"
-                       class="btn btn-secondary">
-                        Quay lại
-                    </a>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteBtn = document.querySelector('.delete-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const title = this.getAttribute('data-title') || 'slider này';
+
+                    Swal.fire({
+                        title: 'Xác nhận xóa?',
+                        html: `Bạn có chắc muốn xóa slider "<strong>${title}</strong>"?<br>Thao tác này không thể hoàn tác!`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa ngay',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/Admin/AdminSliders/Delete/${id}`;
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+}

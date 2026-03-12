@@ -6,57 +6,71 @@
 
 <h2 class="mb-4 text-danger">Xóa tin tức</h2>
 
-<h5 class="mb-3">Bạn có chắc chắn muốn xóa tin này không?</h5>
-
-<div class="row">
-    <div class="col-md-8">
-
-        <div class="card border-danger">
-
-            <div class="card-body">
-
-                <h4 class="card-title">
-                    @Model.Title
-                </h4>
-
-                <div class="mb-3">
-                    <strong>Ngày đăng:</strong>
-                    @Model.CreatedDate.ToString("dd/MM/yyyy")
-                </div>
-
-                <div class="mb-3">
-                    <strong>Ảnh tin tức:</strong><br />
-
-                    <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/no-image.png" : Model.ImageUrl)"
-                         style="width:250px;border-radius:8px;border:1px solid #ddd;padding:5px;" />
-                </div>
-
-                <div class="mb-3">
-                    <strong>Nội dung:</strong>
-
-                    <p class="mt-2">
-                        @Model.Content
-                    </p>
-                </div>
-
-                <form asp-action="Delete" method="post">
-
-                    <input type="hidden" asp-for="Id" />
-
-                    <button type="submit" class="btn btn-danger">
-                        Xóa tin tức
-                    </button>
-
-                    <a asp-action="Index"
-                       class="btn btn-secondary">
-                        Hủy
-                    </a>
-
-                </form>
-
-            </div>
-
+<div class="card shadow-sm border-danger">
+    <div class="card-body">
+        <div class="alert alert-danger" role="alert">
+            <strong>Cảnh báo!</strong> Bạn có chắc chắn muốn xóa tin tức này không?
+            <br /><small>Hành động này không thể hoàn tác và sẽ xóa cả ảnh liên quan.</small>
         </div>
 
+        <div class="row">
+            <!-- Ảnh tin tức -->
+            <div class="col-md-4 text-center mb-4 mb-md-0">
+                <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/no-image.png" : Model.ImageUrl)"
+                     alt="@Model.Title"
+                     class="img-fluid rounded border shadow-sm"
+                     style="max-height:250px; object-fit:cover;" />
+                @if (string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <p class="text-muted mt-2">Không có ảnh thumbnail</p>
+                }
+            </div>
+
+            <!-- Thông tin tin tức -->
+            <div class="col-md-8">
+                <h4 class="card-title mb-3">@Model.Title</h4>
+
+                <div class="mb-3">
+                    <strong>Ngày đăng:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")
+                </div>
+
+                <div class="mb-3">
+                    <strong>Trạng thái:</strong>
+                    @if ((DateTime.Now - Model.CreatedDate).TotalDays <= 7)
+                    {
+                        <span class="badge bg-success">Mới</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Cũ</span>
+                    }
+                </div>
+
+                <div class="mb-4">
+                    <strong>Nội dung:</strong>
+                    <div style="max-height:200px; overflow-y:auto; padding:10px; background:#f8f9fa; border-radius:6px; border:1px solid #dee2e6;">
+                        @Html.Raw(Model.Content)  <!-- Dùng Raw nếu nội dung có HTML, nếu chỉ text thì dùng @Model.Content -->
+                    </div>
+                </div>
+
+                <form asp-area="Admin"
+                      asp-controller="AdminNews"
+                      asp-action="Delete"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mt-4 d-flex gap-3">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-1"></i> Xóa tin tức
+                        </button>
+                        <a asp-action="Index"
+                           class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

@@ -1,92 +1,92 @@
 ﻿@model TechGearStore.Models.News
 
 @{
-    ViewData["Title"] = "Tạo tin tức";
+    ViewData["Title"] = "Tạo tin tức mới";
 }
 
 <h2 class="mb-4">Tạo tin tức mới</h2>
 
-<div class="row">
-    <div class="col-md-6">
-
+<div class="card shadow-sm">
+    <div class="card-body">
         <form asp-area="Admin"
               asp-controller="AdminNews"
               asp-action="Create"
               method="post"
               enctype="multipart/form-data">
-
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <!-- Title -->
             <div class="form-group mb-3">
-                <label asp-for="Title" class="form-label">Tiêu đề</label>
-                <input asp-for="Title" class="form-control" />
+                <label asp-for="Title" class="form-label">Tiêu đề tin tức</label>
+                <input asp-for="Title"
+                       class="form-control"
+                       placeholder="Nhập tiêu đề tin tức..." />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
             <!-- Content -->
             <div class="form-group mb-3">
-                <label asp-for="Content" class="form-label">Nội dung</label>
-                <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+                <label asp-for="Content" class="form-label">Nội dung tin tức</label>
+                <textarea asp-for="Content"
+                          class="form-control"
+                          rows="6"
+                          placeholder="Nhập nội dung chi tiết bài viết..."></textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
 
             <!-- Upload Image -->
             <div class="form-group mb-3">
-                <label class="form-label">Ảnh tin tức</label>
-
-                <input type="file"
-                       name="ImageFile"
+                <label class="form-label">Ảnh đại diện (thumbnail)</label>
+                <input asp-for="ImageFile"
+                       type="file"
                        class="form-control"
+                       accept="image/*"
                        onchange="previewImage(event)" />
-
+                <span class="text-muted small mt-1 d-block">Định dạng: jpg, jpeg, png, webp. Kích thước khuyến nghị: 800x450px</span>
             </div>
 
             <!-- Preview -->
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
                 <img id="preview"
                      src="/images/no-image.png"
-                     style="width:150px;border-radius:8px;border:1px solid #ccc;padding:5px;" />
+                     alt="Preview ảnh"
+                     style="max-width:200px; border-radius:8px; border:1px solid #ddd; padding:5px; display:block;" />
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Tạo tin tức
-            </button>
-
-            <a asp-area="Admin"
-               asp-controller="AdminNews"
-               asp-action="Index"
-               class="btn btn-secondary">
-                Quay lại
-            </a>
-
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    Tạo tin tức
+                </button>
+                <a asp-area="Admin"
+                   asp-controller="AdminNews"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Quay lại danh sách
+                </a>
+            </div>
         </form>
-
     </div>
 </div>
 
 @section Scripts {
-
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
     <script>
-
         function previewImage(event) {
-
-            var reader = new FileReader();
-
-            reader.onload = function () {
-                document.getElementById("preview").src = reader.result;
+            var output = document.getElementById('preview');
+            if (event.target.files && event.target.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    output.src = reader.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            } else {
+                output.src = "/images/no-image.png";
             }
-
-            reader.readAsDataURL(event.target.files[0]);
-
         }
-
     </script>
-
 }

@@ -183,7 +183,7 @@ namespace TechGearStore.Areas.Admin.Controllers
                 existingProduct.Price = product.Price;
                 existingProduct.Description = product.Description;
                 existingProduct.CategoryId = product.CategoryId;
-
+                existingProduct.StockQuantity = product.StockQuantity;
                 // Thumbnail
                 if (imageFile != null && imageFile.Length > 0)
                 {

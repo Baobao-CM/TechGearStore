@@ -55,20 +55,26 @@ namespace TechGearStore.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Slider slider)
+        public async Task<IActionResult> Create([Bind("Title,Link,ImageFile")] Slider slider)
         {
             if (ModelState.IsValid)
             {
-                if (slider.ImageFile != null)
+                try
                 {
-                    slider.ImageUrl = await UploadImage(slider.ImageFile);
+                    if (slider.ImageFile != null)
+                    {
+                        slider.ImageUrl = await UploadImage(slider.ImageFile);
+                    }
+                    _context.Add(slider);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Thêm slider thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                _context.Add(slider);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Lỗi khi upload ảnh: " + ex.Message);
+                }
             }
-
             return View(slider);
         }
 
@@ -93,29 +99,38 @@ namespace TechGearStore.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Slider slider)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Link,ImageFile")] Slider slider)
         {
-            if (id != slider.Id)
-                return NotFound();
+            if (id != slider.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
-                var oldSlider = await _context.Sliders.FindAsync(id);
-
-                oldSlider.Title = slider.Title;
-                oldSlider.Link = slider.Link;
-
-                if (slider.ImageFile != null)
+                try
                 {
-                    oldSlider.ImageUrl = await UploadImage(slider.ImageFile);
+                    var oldSlider = await _context.Sliders.FindAsync(id);
+                    if (oldSlider == null) return NotFound();
+
+                    oldSlider.Title = slider.Title;
+                    oldSlider.Link = slider.Link;
+
+                    if (slider.ImageFile != null)
+                    {
+                        // Optional: xóa ảnh cũ nếu muốn
+                        // if (!string.IsNullOrEmpty(oldSlider.ImageUrl)) { ... xóa file }
+
+                        oldSlider.ImageUrl = await UploadImage(slider.ImageFile);
+                    }
+
+                    _context.Update(oldSlider);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật slider thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                _context.Update(oldSlider);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                catch
+                {
+                    ModelState.AddModelError("", "Lỗi khi cập nhật.");
+                }
             }
-
             return View(slider);
         }
 

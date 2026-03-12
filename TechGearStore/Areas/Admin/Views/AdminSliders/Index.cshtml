@@ -1,40 +1,114 @@
 ﻿@model IEnumerable<TechGearStore.Models.Slider>
 
-<h2>Quản lý Slider</h2>
+@{
+    ViewData["Title"] = "Quản lý Slider";
+}
 
-<p>
-    <a asp-action="Create" class="btn btn-success">Thêm Slider</a>
-</p>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Tiêu đề</th>
-            <th>Ảnh</th>
-            <th>Link</th>
-            <th width="200">Thao tác</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model)
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Quản lý Slider trang chủ</h4>
+        <a asp-action="Create" class="btn btn-light btn-sm">
+            <i class="fas fa-plus me-1"></i> Thêm slider mới
+        </a>
+    </div>
+    <div class="card-body p-0">
+        @if (TempData["Success"] != null)
         {
-            <tr>
-                <td>@item.Title</td>
-
-                <td>
-                    <img src="@item.ImageUrl"
-                         style="width:200px;border-radius:6px;" />
-                </td>
-
-                <td>@item.Link</td>
-
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Sửa</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Chi tiết</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Xóa</a>
-                </td>
-            </tr>
+            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         }
-    </tbody>
-</table>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info text-center m-4">
+                Chưa có slider nào. Hãy thêm mới!
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 220px;">Ảnh</th>
+                            <th>Tiêu đề</th>
+                            <th>Link (nếu có)</th>
+                            <th style="width: 180px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Title"
+                                             class="img-fluid rounded" style="max-height: 140px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/no-image.png" alt="No image"
+                                             class="img-fluid rounded" style="max-height: 140px;" />
+                                    }
+                                </td>
+                                <td>@item.Title</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Link))
+                                    {
+                                        <a href="@item.Link" target="_blank" class="text-primary">@item.Link</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Không có link</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> Chi tiết
+                                    </a>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="@item.Id" data-title="@item.Title">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const id = this.getAttribute('data-id');
+                    const title = this.getAttribute('data-title') || 'slider này';
+
+                    Swal.fire({
+                        title: 'Xác nhận xóa?',
+                        html: `Bạn có chắc muốn xóa slider "<strong>${title}</strong>"?<br>Sẽ không thể khôi phục!`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Xóa ngay',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/Admin/AdminSliders/Delete/${id}`;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

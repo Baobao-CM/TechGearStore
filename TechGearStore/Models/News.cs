@@ -12,16 +12,13 @@ namespace TechGearStore.Models
         [Required]
         public string Title { get; set; }
 
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
-        // Lưu đường dẫn ảnh
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
-        // Thời gian tạo tin
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
-        // File upload (không lưu database)
         [NotMapped]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 }

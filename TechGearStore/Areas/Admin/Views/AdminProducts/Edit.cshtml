@@ -1,24 +1,22 @@
 ﻿@model TechGearStore.Models.Product
+@using TechGearStore.Models
 
 @{
-    ViewData["Title"] = "Edit Product";
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
 }
 
 <h2 class="mb-4">Chỉnh sửa sản phẩm</h2>
 
 <div class="row">
     <div class="col-md-6">
-
         <form asp-area="Admin"
               asp-controller="AdminProducts"
               asp-action="Edit"
               method="post"
               enctype="multipart/form-data">
-
             <input type="hidden" asp-for="ProductId" />
             <input type="hidden" asp-for="ImageUrl" />
-
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <!-- Product Name -->
             <div class="form-group mb-3">
@@ -37,16 +35,30 @@
             <!-- Description -->
             <div class="form-group mb-3">
                 <label asp-for="Description" class="form-label">Mô tả sản phẩm</label>
-                <textarea asp-for="Description" class="form-control"></textarea>
+                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <!-- THÊM MỚI: StockQuantity -->
+            <div class="form-group mb-3">
+                <label asp-for="StockQuantity" class="form-label">Số lượng tồn kho</label>
+                <input asp-for="StockQuantity" class="form-control" type="number" min="0" />
+                <span asp-validation-for="StockQuantity" class="text-danger"></span>
             </div>
 
             <!-- Current Image -->
             <div class="form-group mb-3">
-                <label class="form-label">Ảnh hiện tại</label><br />
-                <img id="previewImage"
-                     src="@Model.ImageUrl"
-                     style="width:150px;border-radius:8px;border:1px solid #ccc;padding:5px;" />
+                <label class="form-label">Ảnh hiện tại (thumbnail)</label><br />
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img id="previewImage"
+                         src="@Model.ImageUrl"
+                         style="width:150px;border-radius:8px;border:1px solid #ccc;padding:5px;" />
+                }
+                else
+                {
+                    <p class="text-muted">Chưa có ảnh thumbnail</p>
+                }
             </div>
 
             <!-- Upload New Image -->
@@ -55,47 +67,32 @@
                 <input type="file"
                        name="imageFile"
                        class="form-control"
+                       accept="image/*"
                        onchange="previewFile(event)" />
             </div>
 
             <!-- Gallery hiện tại -->
             <div class="form-group mb-3">
-                <label>Ảnh chi tiết hiện tại</label>
-
+                <label>Ảnh chi tiết hiện tại (gallery)</label>
                 <div style="display:flex; gap:15px; flex-wrap:wrap;">
-
-                    @foreach (var img in Model.Images)
+                    @foreach (var img in Model.Images ?? Enumerable.Empty<ProductImage>())
                     {
                         <div style="position:relative; width:120px;">
-
                             <img src="@img.ImageUrl"
                                  style="width:120px;height:120px;object-fit:cover;border:1px solid #ddd;border-radius:6px;" />
-
                             <button type="button"
                                     onclick="deleteImage(@img.Id)"
-                                    style="
-                        position:absolute;
-                        top:-10px;
-                        right:-10px;
-                        background:red;
-                        color:white;
-                        border:none;
-                        width:28px;
-                        height:28px;
-                        border-radius:50%;
-                        cursor:pointer;">
+                                    style="position:absolute;top:-10px;right:-10px;background:red;color:white;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;">
                                 ✕
                             </button>
-
                         </div>
                     }
-
                 </div>
             </div>
 
             <!-- Upload thêm gallery -->
             <div class="form-group mb-3">
-                <label>Thêm ảnh chi tiết</label>
+                <label>Thêm ảnh chi tiết mới</label>
                 <input type="file"
                        name="galleryFiles"
                        multiple
@@ -109,64 +106,64 @@
                 <select asp-for="CategoryId"
                         class="form-control"
                         asp-items="ViewBag.CategoryId">
+                    <option value="">-- Chọn danh mục --</option>
                 </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
 
             <!-- Buttons -->
             <div class="form-group">
-
                 <button type="submit" class="btn btn-primary">
                     Lưu thay đổi
                 </button>
-
                 <a asp-area="Admin"
                    asp-controller="AdminProducts"
                    asp-action="Index"
                    class="btn btn-secondary">
                     Quay lại
                 </a>
-
             </div>
-
         </form>
     </div>
 </div>
 
 @section Scripts {
-
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
     <script>
-
         function previewFile(event) {
             var reader = new FileReader();
-
             reader.onload = function () {
                 document.getElementById("previewImage").src = reader.result;
+            };
+            if (event.target.files && event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
             }
-
-            reader.readAsDataURL(event.target.files[0]);
         }
 
         function deleteImage(id) {
-
             if (!confirm("Bạn có chắc muốn xoá ảnh này?")) {
                 return;
             }
-
             fetch('/Admin/AdminProducts/DeleteImage/' + id, {
-                method: 'POST'
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
             })
                 .then(response => {
                     if (response.ok) {
                         location.reload();
+                    } else {
+                        alert("Lỗi khi xóa ảnh");
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Có lỗi xảy ra");
                 });
-
         }
-
     </script>
-
 }

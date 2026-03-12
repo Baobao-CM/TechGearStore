@@ -4,88 +4,111 @@
     ViewData["Title"] = "Sửa Slider";
 }
 
-<h2 class="mb-4">Sửa Slider</h2>
-
-<div class="card shadow-sm">
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-warning text-dark">
+        <h4 class="mb-0">Chỉnh sửa Slider</h4>
+    </div>
     <div class="card-body">
-
-        <form asp-action="Edit" enctype="multipart/form-data">
-
+        <form asp-action="Edit" enctype="multipart/form-data" id="sliderEditForm">
+            @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="ImageUrl" />
 
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
 
-            <div class="mb-3">
-
-                <label asp-for="Title" class="form-label">Tiêu đề</label>
-
-                <input asp-for="Title"
-                       class="form-control" />
-
-                <span asp-validation-for="Title"
-                      class="text-danger"></span>
-
+            <div class="mb-4">
+                <label asp-for="Title" class="form-label fw-bold">Tiêu đề slider <span class="text-danger">*</span></label>
+                <input asp-for="Title" class="form-control" placeholder="Ví dụ: Ưu đãi đặc biệt cuối năm" autofocus />
+                <div class="form-text text-muted">Tiêu đề nên ngắn gọn, thu hút người xem.</div>
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-
-                <label class="form-label">Ảnh slider mới</label>
-
-                <input asp-for="ImageFile"
-                       type="file"
-                       class="form-control" />
-
-            </div>
-
-            @if (!string.IsNullOrEmpty(Model.ImageUrl))
-            {
-                <div class="mb-3">
-
-                    <label class="form-label">Ảnh hiện tại</label>
-                    <br />
-
-                    <img src="@Model.ImageUrl"
-                         style="width:220px;border-radius:8px;border:1px solid #ddd" />
-
+            <div class="mb-4">
+                <label asp-for="Link" class="form-label fw-bold">Link đích khi click</label>
+                <input asp-for="Link" class="form-control" placeholder="Ví dụ: /khuyen-mai-tet" />
+                <div class="form-text text-muted">
+                    Để trống nếu không muốn slider dẫn đến trang nào. Có thể dùng đường dẫn tương đối (/...) hoặc URL đầy đủ.
                 </div>
-            }
-
-            <div class="mb-3">
-
-                <label asp-for="Link" class="form-label">Link khi bấm</label>
-
-                <input asp-for="Link"
-                       class="form-control"
-                       placeholder="/Products" />
-
-                <span asp-validation-for="Link"
-                      class="text-danger"></span>
-
+                <span asp-validation-for="Link" class="text-danger"></span>
             </div>
 
-            <div class="mt-3">
+            <!-- Ảnh hiện tại -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Ảnh slider hiện tại</label>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="mt-2">
+                        <img src="@Model.ImageUrl" alt="@Model.Title"
+                             class="img-fluid rounded shadow-sm"
+                             style="max-height: 300px; object-fit: contain; border: 1px solid #dee2e6;" />
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mt-2">Chưa có ảnh slider nào được tải lên.</p>
+                }
+            </div>
 
-                <button type="submit" class="btn btn-primary">
-                    Lưu thay đổi
+            <!-- Upload ảnh mới -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Ảnh slider mới (thay thế ảnh cũ)</label>
+                <input asp-for="ImageFile" type="file" accept="image/*" class="form-control" />
+                <div class="form-text text-muted">
+                    Khuyến nghị: 1920×600px hoặc tỷ lệ tương tự, định dạng JPG/PNG/WEBP, dung lượng dưới 2MB.
+                </div>
+
+                <!-- Preview ảnh mới (nếu chọn file) -->
+                <div class="mt-3 text-center">
+                    <img id="imagePreview"
+                         src="#"
+                         alt="Preview ảnh mới"
+                         style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none;" />
+                    <p id="previewText" class="text-muted mt-2" style="display: none;">Ảnh xem trước (chưa lưu)</p>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary me-2" id="submitBtn">
+                    <i class="fas fa-save me-1"></i> Lưu thay đổi
                 </button>
-
-                <a asp-action="Index"
-                   class="btn btn-secondary">
-                    Quay lại
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
                 </a>
-
             </div>
-
         </form>
-
     </div>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        // Preview ảnh khi chọn file mới
+        const fileInput = document.querySelector('input[name="ImageFile"]');
+        const previewImg = document.getElementById('imagePreview');
+        const previewText = document.getElementById('previewText');
 
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    previewImg.src = ev.target.result;
+                    previewImg.style.display = 'block';
+                    previewText.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.style.display = 'none';
+                previewText.style.display = 'none';
+            }
+        });
+
+        // Loading khi submit form
+        document.getElementById('sliderEditForm').addEventListener('submit', function () {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang lưu...';
+        });
+    </script>
 }
